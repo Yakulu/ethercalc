@@ -3,12 +3,12 @@
   var slice$ = [].slice;
   this.__DB__ = null;
   this.include = function(){
-    var env, ref$, redisPort, redisHost, redisPass, dataDir, services, name, items, ref1$, redis, makeClient, RedisStore, db, EXPIRE, this$ = this;
+    var env, ref$, redisPort, redisHost, redisPass, redisDbFilename, dataDir, services, name, items, ref1$, redis, makeClient, RedisStore, db, EXPIRE, this$ = this;
     if (this.__DB__) {
       return this.__DB__;
     }
     env = process.env;
-    ref$ = [env['REDIS_PORT'], env['REDIS_HOST'], env['REDIS_PASS'], env['OPENSHIFT_DATA_DIR']], redisPort = ref$[0], redisHost = ref$[1], redisPass = ref$[2], dataDir = ref$[3];
+    ref$ = [env['REDIS_PORT'], env['REDIS_HOST'], env['REDIS_PASS'], env['REDIS_DBFILENAME'], env['OPENSHIFT_DATA_DIR']], redisPort = ref$[0], redisHost = ref$[1], redisPass = ref$[2], redisDbFilename = ref$[3], dataDir = ref$[4];
     services = JSON.parse(process.env.VCAP_SERVICES || '{}');
     for (name in services) {
       items = services[name];
@@ -26,6 +26,13 @@
       if (redisPass) {
         client.auth(redisPass, function(){
           return console.log.apply(console, arguments);
+        });
+      }
+      if (redisDbFilename) {
+        client.config('set', 'dbfilename', redisDbFilename, function(err){
+          if (err) {
+            return console.log(arguments);
+          }
         });
       }
       if (cb) {

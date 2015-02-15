@@ -3,7 +3,7 @@
   return @__DB__ if @__DB__
 
   env = process.env
-  [redisPort, redisHost, redisPass, dataDir] = env<[ REDIS_PORT REDIS_HOST REDIS_PASS OPENSHIFT_DATA_DIR ]>
+  [redisPort, redisHost, redisPass, redisDbFilename, dataDir] = env<[ REDIS_PORT REDIS_HOST REDIS_PASS REDIS_DBFILENAME OPENSHIFT_DATA_DIR ]>
 
   services = JSON.parse do
     process.env.VCAP_SERVICES or '{}'
@@ -21,6 +21,8 @@
     client = redis.createClient redisPort, redisHost
     if redisPass
       client.auth redisPass, -> console.log ...arguments
+    if redisDbFilename
+      client.config 'set', 'dbfilename', redisDbFilename, (err) -> console.log arguments if err
     client.on \connect cb if cb
     return client
 
